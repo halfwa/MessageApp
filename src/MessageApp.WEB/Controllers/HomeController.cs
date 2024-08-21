@@ -18,7 +18,17 @@ namespace MessageApp.WEB.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        public IActionResult Send()
+        {
+            return View();
+        }
+
+        public IActionResult List()
+        {
+            return View();
+        }
+
+        public IActionResult RealTimeList()
         {
             return View();
         }

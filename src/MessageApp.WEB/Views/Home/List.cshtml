@@ -1,0 +1,142 @@
+﻿@{
+    ViewData["Title"] = "List";
+}
+
+<div class="container mt-4" style="max-width: 600px;">
+    <div class="messenger-container border rounded shadow-sm">
+        <div class="messenger-header bg-primary text-white p-3 rounded-top d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">MessageApp</h4>
+            <!-- Мультиселект фильтрации -->
+            <select id="timeFilter" class="form-select w-auto">
+                <option value="10-minutes">Последние 10 минут</option>
+                <option value="1-hour">Последний час</option>
+                <option selected value="1-day">Последний день</option>
+                <option value="all">За все время</option>
+            </select>
+        </div>
+
+        <!-- Контейнер для сообщений -->
+        <div id="responseContainer" class="messenger-chat p-3 overflow-auto"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', applyTimeFilter);
+        document.getElementById('timeFilter').addEventListener('change', applyTimeFilter);
+
+        async function fetchMessages(fromDate = null) {
+            try {
+                let url = new URL(window.API_URL + '/api/messages/');
+                let params = new URLSearchParams();
+
+                if (fromDate) {
+                    params.append('fromDate', fromDate.toISOString());
+                    url.search = params.toString();
+                }
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.error) {
+                    throw new Error(`HTTP error! ${response.error}`);
+                }
+
+                const data = await response.json();
+                displayMessages(data);
+            } catch (error) {
+                console.error('Error:', error);
+                const responseContainer = document.getElementById('responseContainer');
+                responseContainer.innerHTML = '<p class="text-danger">Не удалось загрузить сообщения.</p>';
+            }
+        }
+
+        function applyTimeFilter() {
+            const filterValue = document.getElementById('timeFilter').value;
+            const now = new Date();
+
+            let fromDate;
+
+            switch (filterValue) {
+                case '10-minutes':
+                    fromDate = new Date(now.getTime() - 10 * 60000);
+                    break;
+                case '1-hour':
+                    fromDate = new Date(now.getTime() - 60 * 60000);
+                    break;
+                case '1-day':
+                    fromDate = new Date(now.getTime() - 24 * 60 * 60000);
+                    break;
+                default:
+                    fromDate = null;
+            }
+
+            fetchMessages(fromDate);
+        }
+
+        function displayMessages(messages) {
+            const responseContainer = document.getElementById('responseContainer');
+            responseContainer.innerHTML = ''; 
+
+            if (messages.length === 0) {
+                responseContainer.innerHTML = '<p>Сообщения не найдены.</p>';
+                return;
+            }
+
+            messages.forEach(message => {
+                addMessageToChat(message.text, message.orderNumber, message.createdAt);
+            });
+
+            responseContainer.scrollTop = responseContainer.scrollHeight;
+        }
+
+        function addMessageToChat(text, orderNumber, createdAt) {
+            const responseContainer = document.getElementById('responseContainer');
+            const messageBubble = document.createElement('div');
+
+            messageBubble.className = 'message-bubble bg-light rounded p-2 mb-2';
+            messageBubble.innerHTML = `
+                    <div><strong>Message #${orderNumber}</strong></div>
+                    <div>${text}</div>
+                    <div class="text-muted small">${new Date(createdAt).toLocaleString()}</div>
+                `;
+
+            responseContainer.appendChild(messageBubble);
+        }
+    </script>
+
+}
+
+<style>
+    .messenger-container {
+        display: flex;
+        flex-direction: column;
+        height: 80vh;
+    }
+
+    .messenger-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .messenger-chat {
+        flex-grow: 1;
+        background-color: #f8f9fa;
+        height: 60vh;
+        overflow-y: auto;
+    }
+
+    .message-bubble {
+        max-width: 80%;
+    }
+
+    #timeFilter {
+        color: black;
+        border-radius: 5px;
+    }
+</style>

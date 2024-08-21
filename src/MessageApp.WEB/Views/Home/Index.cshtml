@@ -1,8 +1,60 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card text-center mt-5">
+                <div class="card-header bg-primary text-white">
+                    <h2>MessageApp</h2>
+                </div>
+                <div class="card-body">
+                    <p class="lead">Welcome to the MessageApp website - the platform for messaging</p>
+                    <hr>
+                    <h4>Get Started</h4>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <a id="sendLink" href="#" class="btn btn-primary btn-block" target="_blank" rel="noreferrer">
+                                Send your first message
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a id="listLink" href="#" class="btn btn-primary btn-block" target="_blank" rel="noreferrer">
+                                View message history
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a id="realtimeListLink" href="#" class="btn btn-primary btn-block" target="_blank" rel="noreferrer">
+                                Real-time message receiving
+                            </a>
+                        </li>
+                    </ul>
+                    <hr>
+                    <h4>Additional Resources</h4>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <a id="swaggerLink" href="#" class="btn btn-success btn-block" target="_blank" rel="noreferrer">
+                                Explore Open API Documentation
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-footer text-muted">
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+@section Scripts {
+    <script type="text/javascript">
+        var swaggerLink = window.API_URL + '/swagger';
+        var sendLink = '/Home/Send';
+        var listLink = '/Home/List';
+        var realtimeListLink = '/Home/RealtimeList';
+
+        document.getElementById('swaggerLink').href = swaggerLink;
+        document.getElementById('sendLink').href = sendLink;
+        document.getElementById('listLink').href = listLink;
+        document.getElementById('realtimeListLink').href = realtimeListLink;
+    </script>
+}

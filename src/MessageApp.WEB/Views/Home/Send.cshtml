@@ -1,0 +1,127 @@
+﻿@{
+    ViewData["Title"] = "Send Page";
+}
+
+<div class="container mt-4" style="max-width: 600px;">
+    <div class="messenger-container border rounded shadow-sm">
+        <div class="messenger-header bg-primary text-white p-3 rounded-top">
+            <h4 class="mb-0">MessageApp</h4>
+        </div>
+
+        <!-- Контейнер для сообщений -->
+        <div id="responseContainer" class="messenger-chat p-3 overflow-auto">
+        </div>
+
+        <!-- Поле ввода и кнопка отправки -->
+        <div class="messenger-input border-top p-3 d-flex">
+            <input id="messageInput" type="text" class="form-control me-2" placeholder="Напишите сообщение..." />
+            <button id="sendButton" class="btn btn-primary">Отправить</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        document.getElementById('sendButton').addEventListener('click', sendMessage);
+
+        let messagesCount = 0;
+
+        async function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const messageText = messageInput.value.trim();
+
+            if (!messageText) {
+                return;
+            }
+            else if (messageText.length > 128) {
+                alert("Message is too long. Please limit your message to 128 characters.");
+                return;
+            }
+
+            try {
+                messagesCount = await fetchMessagesCount() || 0;
+                const newOrderNumber = messagesCount++;
+
+                const response = await fetch(window.API_URL + '/api/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: messageText,
+                        orderNumber: newOrderNumber
+                    })
+                });
+
+                if (response.error) {
+                    throw new Error(`HTTP error! ${response.error}`);
+                }
+
+                const data = await response.json();
+                addMessageToChat(data.text, data.orderNumber, data.createdAt);
+                messageInput.value = '';
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function addMessageToChat(text, orderNumber, createdAt) {
+            const responseContainer = document.getElementById('responseContainer');
+            const messageBubble = document.createElement('div');
+
+            messageBubble.className = 'message-bubble bg-light rounded p-2 mb-2';
+            messageBubble.innerHTML = `
+                    <div><strong>Message №${orderNumber}</strong></div>
+                    <div>${text}</div>
+                    <div class="text-muted small">${new Date(createdAt).toLocaleString()}</div>
+                `;
+
+            responseContainer.appendChild(messageBubble);
+            responseContainer.scrollTop = responseContainer.scrollHeight;
+        }
+
+        async function fetchMessagesCount() {
+            try {
+                const response = await fetch(window.API_URL + '/api/messages/count', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.error) {
+                    throw new Error(`HTTP error! ${response.error}`);
+                }
+
+                const data = await response.json();
+                return Number(data);
+            } catch (error) {
+                console.error('Error:', error);
+                return 0; 
+            }
+        }
+    </script>
+}
+
+<style>
+    .messenger-container {
+        display: flex;
+        flex-direction: column;
+        height: 80vh;
+    }
+
+    .messenger-chat {
+        flex-grow: 1;
+        background-color: #f8f9fa;
+        height: 60vh;
+        overflow-y: auto;
+    }
+
+    .messenger-input {
+        background-color: #ffffff;
+    }
+
+    .message-bubble {
+        max-width: 80%;
+    }
+</style>
