@@ -8,6 +8,9 @@ using Serilog.Events;
 var builder = WebApplication.CreateBuilder(args);
 
 const string AllowedOriginSettings = "AllowedOrigin";
+const string invariant = "Npgsql";
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+             throw new InvalidOperationException("The GetConnectionString operation returned null");
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
@@ -30,18 +33,13 @@ builder.Services.AddControllers(options =>
     options.SuppressAsyncSuffixInActionNames = false;
 });
 
-var invariant = "Npgsql";
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
-             throw new InvalidOperationException("The GetConnectionString operation returned null");
-
-
 builder.Host.UseOrleans((ctx, siloBuilder) =>
 {
     if (builder.Environment.IsDevelopment())
     {
         siloBuilder.UseLocalhostClustering();
         siloBuilder.AddMemoryGrainStorageAsDefault();
-        siloBuilder.AddMemoryGrainStorage("urls");
+        siloBuilder.AddMemoryGrainStorage("messages");
         siloBuilder.UseInMemoryReminderService();
     }
     else
