@@ -37,27 +37,27 @@ namespace MessageApp.BLL.Services
 
             try
             {
-                await using (var dataReader = await _dataAccessManager.ExecuteReaderAsync(query, parameters))
+                await using var dataReader = await _dataAccessManager.ExecuteReaderAsync(query, parameters);
+                
+                while (await dataReader.ReadAsync())
                 {
-                    while (await dataReader.ReadAsync())
-                    {
-                        Message message = new Message();
+                    Message message = new Message();
 
-                        message.Id = dataReader.GetGuid(0);
-                        message.OrderNumber = dataReader.GetInt64(1);
-                        message.Text = dataReader.GetString(2);
-                        message.CreatedAt = (DateTimeOffset)dataReader.GetDateTime(3);
+                    message.Id = dataReader.GetGuid(0);
+                    message.OrderNumber = dataReader.GetInt64(1);
+                    message.Text = dataReader.GetString(2);
+                    message.CreatedAt = (DateTimeOffset)dataReader.GetDateTime(3);
 
-                        messages.Add(message);
-                    }
-
-                    _logger.LogInformation("Successfully retrieved {Count} messages in {Method} method.",
-                        messages.Count, 
-                        nameof(GetAllMessagesAsync)
-                    );
-
-                    return messages;
+                    messages.Add(message);
                 }
+
+                _logger.LogInformation("Successfully retrieved {Count} messages in {Method} method.",
+                    messages.Count, 
+                    nameof(GetAllMessagesAsync)
+                );
+
+                return messages;
+                
             }
             catch (Exception)
             {
@@ -76,7 +76,7 @@ namespace MessageApp.BLL.Services
 
             try
             {
-                var dataReader = await _dataAccessManager.ExecuteReaderAsync(query, parameters);
+                await using var dataReader = await _dataAccessManager.ExecuteReaderAsync(query, parameters);
 
                 if (dataReader.Read())
                 {

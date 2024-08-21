@@ -9,6 +9,8 @@ namespace MessageApp.DAL.Native
 {
     public class DataAccessManager : IDisposable
     {
+        private bool _disposed = false;
+
         private readonly string? _connectionString;
         private readonly IHttpContextAccessor _httpAccessor;
         private readonly ILogger<DataAccessManager> _logger;
@@ -33,8 +35,6 @@ namespace MessageApp.DAL.Native
         /// </summary>
         public async Task<DbDataReader> ExecuteReaderAsync(string query, IEnumerable<NpgsqlParameter>? parameters = null)
         {
-            var correlationId = _httpAccessor.HttpContext?.Items["CorrelationId"]?.ToString();
-
             try
             {
                 await using var command = new NpgsqlCommand(query, _npgsqlConnection);
@@ -131,9 +131,30 @@ namespace MessageApp.DAL.Native
             }
         }
 
+        #region Disposing
+
         public void Dispose()
         {
-            _npgsqlConnection.Dispose();
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
         }
+        ~DataAccessManager()
+        {
+            Dispose(false);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _npgsqlConnection?.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+        #endregion
     }
 }
