@@ -24,3 +24,8 @@ docker-compose up
 
 #### WEB - Представление
 MVC приложение для преставления данных.
+
+![Снимок экрана 2024-08-21 182811](https://github.com/halfwa/MessageApp/blob/main/assets/%D0%A1%D0%BD%D0%B8%D0%BC%D0%BE%D0%BA%20%D1%8D%D0%BA%D1%80%D0%B0%D0%BD%D0%B0%202024-08-21%20182811.png)
+
+
+![Снимок экрана 2024-08-21 184800](https://github.com/halfwa/MessageApp/blob/main/assets/%D0%A1%D0%BD%D0%B8%D0%BC%D0%BE%D0%BA%20%D1%8D%D0%BA%D1%80%D0%B0%D0%BD%D0%B0%202024-08-21%20184800.png)
