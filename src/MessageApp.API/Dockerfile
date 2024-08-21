@@ -10,7 +10,6 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["../MessageApp.API/MessageApp.API.csproj", "MessageApp.API/"]
 COPY ["../MessageApp.BLL/MessageApp.BLL.csproj", "MessageApp.BLL/"]
-COPY ["../MessageApp.DAL/MessageApp.DAL.csproj", "MessageApp.DAL/"]
 RUN dotnet restore "./MessageApp.API/MessageApp.API.csproj"
 COPY . .
 WORKDIR "/src/MessageApp.API"

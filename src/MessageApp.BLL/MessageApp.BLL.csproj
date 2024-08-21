@@ -7,7 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MessageApp.DAL\MessageApp.DAL.csproj" />
+    <Folder Include="Grains\" />
+    <Folder Include="Interfaces\" />
   </ItemGroup>
 
 </Project>

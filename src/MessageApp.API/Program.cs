@@ -1,8 +1,6 @@
-using MessageApp.API;
 using MessageApp.API.Hubs;
 using MessageApp.API.Middlewares;
-using MessageApp.BLL.Interfaces;
-using MessageApp.BLL.Services;
+using Orleans.Configuration;
 using Serilog;
 using Serilog.Events;
 
@@ -32,11 +30,48 @@ builder.Services.AddControllers(options =>
     options.SuppressAsyncSuffixInActionNames = false;
 });
 
-builder
-    .AddDataLayerAccess();
+var invariant = "Npgsql";
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+             throw new InvalidOperationException("The GetConnectionString operation returned null");
+
+
+builder.Host.UseOrleans((ctx, siloBuilder) =>
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        siloBuilder.UseLocalhostClustering();
+        siloBuilder.AddMemoryGrainStorageAsDefault();
+        siloBuilder.AddMemoryGrainStorage("urls");
+        siloBuilder.UseInMemoryReminderService();
+    }
+    else
+    {
+        siloBuilder.ConfigureEndpoints(11111, 30000);
+        siloBuilder.UseAdoNetClustering(options =>
+        {
+            options.Invariant = invariant;
+            options.ConnectionString = connectionString;
+        });
+        siloBuilder.UseAdoNetReminderService(options =>
+        {
+            options.Invariant = invariant;
+            options.ConnectionString = connectionString;
+        });
+        siloBuilder.AddAdoNetGrainStorage("messages", options =>
+        {
+            options.Invariant = invariant;
+            options.ConnectionString = connectionString;
+        });
+
+        siloBuilder.Configure<ClusterOptions>(options =>
+        {
+            options.ClusterId = "messageCluster";
+            options.ServiceId = "messageService";
+        });
+    }
+});
+
 builder.Services
-    .AddTransient<IMessageService, MessagesService>()
-    .AddHttpContextAccessor()
     .AddSignalR();
 
 var app = builder.Build();
