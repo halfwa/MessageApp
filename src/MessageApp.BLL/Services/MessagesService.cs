@@ -9,11 +9,11 @@ namespace MessageApp.BLL.Services
     public class MessagesService: IMessageService
     {
         private readonly DataAccessManager _dataAccessManager;
-        private readonly ILogger<DataAccessManager> _logger;
+        private readonly ILogger<MessagesService> _logger;
 
         public MessagesService(
             DataAccessManager dataAccessManager,
-            ILogger<DataAccessManager> logger
+            ILogger<MessagesService> logger
         )
         {
             _dataAccessManager = dataAccessManager;

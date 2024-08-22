@@ -51,7 +51,7 @@ namespace MessageApp.API.Controllers
 
         // GET api/messages/count
         [HttpGet("count")]
-        public async Task<ActionResult<long>> GetStudentsCount()
+        public async Task<ActionResult<long>> GetCountAsync()
         {
             return Ok(await _messageService.MessagesCountAsync());
         }
